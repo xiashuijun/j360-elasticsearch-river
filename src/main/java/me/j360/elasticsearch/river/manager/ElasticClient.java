@@ -17,8 +17,11 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 /**
  * Package: me.j360.elasticsearch.river.manager
@@ -117,13 +120,23 @@ public class ElasticClient {
 
     }
 
-    public void update() {
-
+    public void update(String index) {
+        try {
+            client.prepareUpdate("ttl", "doc", "1")
+                    .setDoc(jsonBuilder()
+                            .startObject()
+                            .field("gender", "male")
+                            .endObject())
+                    .get();
+        } catch (IOException e) {
+            log.error("更新失败: {}", index ,e);
+        }
     }
 
     public void delete() {
 
     }
+
 
     public void bulkRequest(ActionEnum action, String index, String type, String id, String source) {
 
@@ -131,7 +144,7 @@ public class ElasticClient {
             case INSERT:
                 bulkProcessor.add(new IndexRequest(index, type, id).source(source));
             case UPDATE:
-                update();
+                update(index);
             case DELETE:
                 bulkProcessor.add(new DeleteRequest(index, type, id));
                 default:
