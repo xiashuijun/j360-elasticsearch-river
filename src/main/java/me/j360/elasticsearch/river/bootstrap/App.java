@@ -14,6 +14,10 @@ public class App {
         ElasticClient elasticClient = new ElasticClient();
 
         elasticClient.createTypeMapping("test","test-1");
+
+
+        //
+
     }
 
 
